@@ -108,6 +108,7 @@ pub struct Session {
     // Network
     peer_id: Id20,
     announce_port: Option<u16>,
+    listen_addr: Option<SocketAddr>,
     dht: Option<Dht>,
     pub(crate) connector: Arc<StreamConnector>,
     reqwest_client: reqwest::Client,
@@ -644,6 +645,7 @@ impl Session {
                 _cancellation_token_drop_guard: token.clone().drop_guard(),
                 cancellation_token: token,
                 announce_port: listen_result.as_ref().and_then(|l| l.announce_port),
+                listen_addr: listen_result.as_ref().map(|l| l.addr),
                 disk_write_tx,
                 default_storage_factory: opts.default_storage_factory,
                 reqwest_client,
@@ -1422,7 +1424,11 @@ impl Session {
         Ok(())
     }
 
-    pub fn tcp_listen_port(&self) -> Option<u16> {
+    pub fn listen_addr(&self) -> Option<SocketAddr> {
+        self.listen_addr
+    }
+
+    pub fn announce_port(&self) -> Option<u16> {
         self.announce_port
     }
 
