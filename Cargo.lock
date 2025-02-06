@@ -2646,7 +2646,7 @@ dependencies = [
 
 [[package]]
 name = "librqbit"
-version = "8.0.0"
+version = "9.0.0-alpha.0"
 dependencies = [
  "anyhow",
  "arc-swap",
@@ -4456,7 +4456,7 @@ dependencies = [
 
 [[package]]
 name = "rqbit"
-version = "8.0.0"
+version = "9.0.0-alpha.0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -4485,7 +4485,7 @@ dependencies = [
 
 [[package]]
 name = "rqbit-desktop"
-version = "8.0.0"
+version = "9.0.0-alpha.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
