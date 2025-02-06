@@ -41,8 +41,9 @@ async-bt = ["async-backtrace"]
 watch = ["notify"]
 disable-upload = []
 
-# This is absolutely useless for people
+# These are absolutely useless for people, just for debugging / testing / benchmarking
 _disable_disk_write_net_benchmark = []
+_disable_reconnect_test = []
 
 [dependencies]
 # sqlx and home are pinned so that we can compile on older Rusts
@@ -137,3 +138,8 @@ tracing-subscriber = "0.3"
 tokio-test = "0.4"
 tempfile = "3"
 rand = { version = "0.8", features = ["small_rng"] }
+
+[profile.release]
+panic = "abort"
+debug = true
+lto = "thin"
