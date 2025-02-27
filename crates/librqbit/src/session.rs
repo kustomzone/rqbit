@@ -29,7 +29,7 @@ use crate::{
         initializing::TorrentStateInitializing, ManagedTorrentHandle, ManagedTorrentLocked,
         ManagedTorrentOptions, ManagedTorrentState, TorrentMetadata, TorrentStateLive,
     },
-    type_aliases::{DiskWorkQueueSender, PeerStream},
+    type_aliases::{BoxAsyncRead, BoxAsyncWrite, DiskWorkQueueSender, PeerStream},
     FileInfos, ManagedTorrent, ManagedTorrentShared,
 };
 use anyhow::{bail, Context};
@@ -56,10 +56,7 @@ use librqbit_core::{
 use parking_lot::RwLock;
 use peer_binary_protocol::Handshake;
 use serde::{Deserialize, Serialize};
-use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    sync::Notify,
-};
+use tokio::sync::Notify;
 use tokio_util::sync::{CancellationToken, DropGuard};
 use tracing::{debug, error, error_span, info, trace, warn, Instrument};
 use tracker_comms::{TrackerComms, UdpTrackerClient};
@@ -451,8 +448,8 @@ fn torrent_file_from_info_bytes(info_bytes: &[u8], trackers: &[url::Url]) -> any
 
 pub(crate) struct CheckedIncomingConnection {
     pub addr: SocketAddr,
-    pub reader: Box<dyn AsyncRead + Send + Sync + Unpin + 'static>,
-    pub writer: Box<dyn AsyncWrite + Send + Sync + Unpin + 'static>,
+    pub reader: BoxAsyncRead,
+    pub writer: BoxAsyncWrite,
     pub read_buf: ReadBuf,
     pub handshake: Handshake<ByteBufOwned>,
 }
@@ -752,8 +749,8 @@ impl Session {
     async fn check_incoming_connection(
         self: Arc<Self>,
         addr: SocketAddr,
-        mut reader: Box<dyn AsyncRead + Unpin + Send + Sync + 'static>,
-        writer: Box<dyn AsyncWrite + Unpin + Send + Sync + 'static>,
+        mut reader: BoxAsyncRead,
+        writer: BoxAsyncWrite,
     ) -> anyhow::Result<(Arc<TorrentStateLive>, CheckedIncomingConnection)> {
         let rwtimeout = self
             .peer_opts

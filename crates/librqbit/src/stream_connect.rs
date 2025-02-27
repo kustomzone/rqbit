@@ -4,7 +4,10 @@ use anyhow::{bail, Context};
 use librqbit_utp::UtpSocketUdp;
 use tracing::debug;
 
-use crate::PeerConnectionOptions;
+use crate::{
+    type_aliases::{BoxAsyncRead, BoxAsyncWrite},
+    PeerConnectionOptions,
+};
 
 pub struct ConnectionOptions {
     // socks5://[username:password@]host:port
@@ -115,13 +118,7 @@ impl StreamConnector {
         })
     }
 
-    pub async fn connect(
-        &self,
-        addr: SocketAddr,
-    ) -> anyhow::Result<(
-        Box<dyn tokio::io::AsyncRead + Send + Unpin>,
-        Box<dyn tokio::io::AsyncWrite + Send + Unpin>,
-    )> {
+    pub async fn connect(&self, addr: SocketAddr) -> anyhow::Result<(BoxAsyncRead, BoxAsyncWrite)> {
         if let Some(proxy) = self.proxy_config.as_ref() {
             let (r, w) = proxy.connect(addr).await?;
             debug!(?addr, "connected through SOCKS5");
